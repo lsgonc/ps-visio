@@ -3,6 +3,18 @@ version: "3.8" #utilizando a versão mais nova do compose
 #definindo os serviços que vão ser utilizados => 1.Prometheus 2.Node Exporter 3.PetShop
 services:
   prometheus:
-    image: prom/prometheus:v2.51.2
+    image: prom/prometheus:latest
     ports:
-      - "9090:9090" #porta padrão do prometheus
+      - "9090:9090" #expõe a porta host:conteiner => 9090 -> 9090 
+    volumes:
+      - "./prometheus.yaml:/etc/prometheus/prometheus.yaml" # monta o yaml no contêiner
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest 
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
