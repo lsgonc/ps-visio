@@ -1,0 +1,8 @@
+version: "3.8" #utilizando a versão mais nova do compose
+
+#definindo os serviços que vão ser utilizados => 1.Prometheus 2.Node Exporter 3.PetShop
+services:
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    ports:
+      - "9090:9090" #porta padrão do prometheus
