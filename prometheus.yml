@@ -1,6 +1,6 @@
 #configs globais do prometheus
 global:
-  scrape_interval: "15m"
+  scrape_interval: "15s"
   scrape_timeout: "10s"
 
 #definido os targets que o prometheus vai coletar os dados => 1.dele mesmo, 2.node exporter 3.petshop
@@ -10,12 +10,12 @@ scrape_configs:
       - targets:
           - "prometheus:9090"
 
-  - job_name: node_exporter
+  - job_name: node
     static_configs:
       - targets:
-          - "localhost:9100" #porta 9100 é a padrão do node_exporter
+          - 192.168.15.11:9100 #porta 9100 é a padrão do node exporter
 
-  - job_name: petshop
+  - job_name: petshop_prom
     static_configs:
       - targets:
-          - "localhost:3000" #aplicação serve as métricas em :3000/metrics
+          - petshop:3000 #aplicação serve as métricas em :3000/metrics
