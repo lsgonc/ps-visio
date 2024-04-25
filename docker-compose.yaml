@@ -23,3 +23,16 @@ services:
     image: harbor.sflabs.com.br/processo/petshop:latest
     ports:
       - "3000:3000"
+
+  grafana:
+    image: grafana/grafana-oss #grafana open-source
+    ports:
+      - 4000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana #faz o mount do volume persistente no diretório das configs do grafana no conteiner
+
+#cria um volume persistente para os dados do grafana
+volumes:
+  grafana_data: {}
+
+
