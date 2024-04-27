@@ -8,6 +8,7 @@ services:
       - "9090:9090" #expõe a porta host:conteiner => 9090 -> 9090 
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml # monta o yaml no contêiner
+      - prometheus_data:/prometheus #volume para o banco de dados do prometheus
   node-exporter:
     image: quay.io/prometheus/node-exporter:latest 
     container_name: node-exporter
@@ -34,5 +35,6 @@ services:
 #cria um volume persistente para os dados do grafana
 volumes:
   grafana_data: {}
+  prometheus_data: {}
 
 
