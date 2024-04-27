@@ -3,14 +3,14 @@ version: "3.8" #utilizando a versão mais nova do compose
 #definindo os serviços que vão ser utilizados => 1.Prometheus 2.Node Exporter 3.PetShop
 services:
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.51.2
     ports:
       - "9090:9090" #expõe a porta host:conteiner => 9090 -> 9090 
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml # monta o yaml no contêiner
       - prometheus_data:/prometheus #volume para o banco de dados do prometheus
   node-exporter:
-    image: quay.io/prometheus/node-exporter:latest 
+    image: quay.io/prometheus/node-exporter:v1.8.0 
     container_name: node-exporter
     command:
       - '--path.rootfs=/host'
@@ -26,7 +26,7 @@ services:
       - "3000:3000"
 
   grafana:
-    image: grafana/grafana-oss #grafana open-source
+    image: grafana/grafana-oss:10.4.2 #grafana open-source
     ports:
       - 4000:3000
     volumes:
