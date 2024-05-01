@@ -15,8 +15,8 @@ Como acessar a aplicação:
 
 	    5.1. docker run --user root --rm --mount source=ps-visio-main_grafana_data,target=/var/lib/grafana -v $(pwd):/backup busybox /bin/sh -c "chown 472:0 /var/lib/grafana && chmod 777 /backup/grafana.db && cp /backup/grafana.db /var/lib/grafana/grafana.db && chmod 777 /var/lib/grafana/grafana.db"
 	    
-	    5.2. docker run --user root --rm --mount source=ps-visio-main_prometheus_data,target=/prometheus -v $(pwd):/backup busybox tar -xzvf /backup/prometheus-data.tar.gz -C /
-    
+	    5.2. docker run --user root --rm --mount source=ps-visio-main_prometheus_data,target=/prometheus -v $(pwd):/backup busybox cp -rf /backup/prometheus-data /prometheus
+
     6.Restart o compose para aplicar as mudanças
     
     	docker compose restart
