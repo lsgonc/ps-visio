@@ -1,0 +1,102 @@
+---
+- name: "Rodar o projeto PS-VISIO"
+  hosts: visio
+  remote_user: lucas
+  become: true
+
+  #1.Instalar o Docker e o Compose; 2.Baixar o repositório; 3.Rodar o docker-compose
+
+  tasks:
+    - name: Instalando pré-requisitos do Docker
+      ansible.builtin.apt:
+        pkg: 
+          - ca-certificates
+          - curl
+        update_cache: yes
+
+    - name: Adicionando a chave GPG do repositório do Docker
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/debian/gpg 
+        state: present
+
+    - name: Adicionando o repositório do Docker
+      ansible.builtin.apt_repository:
+        repo: deb https://download.docker.com/linux/debian {{ansible_distribution_release}} stable
+
+    - name: Instalando o Docker
+      ansible.builtin.apt:
+        name: 
+          - docker-ce 
+          - docker-ce-cli 
+          - containerd.io 
+          - docker-buildx-plugin 
+          - docker-compose-plugin
+        update_cache: yes
+
+    - name: Instalando o docker com pip
+      remote_user: root
+      become: true
+      ansible.builtin.pip:
+        name:
+          - pyyaml==5.3.1
+          - docker
+          - docker-compose
+
+    #Deixando o docker ativado na maquina
+    - name: Ativando o serviço do docker
+      ansible.builtin.systemd:
+        name: docker.service
+        enabled: true #para inicilizar com o pc
+        state: started
+
+    - name: Ativando o containerd
+      ansible.builtin.systemd:
+        name: containerd.service
+        enabled: true
+        state: started
+
+    - name: Criando o diretório para extrair o projeto do ps-visio
+      ansible.builtin.file:
+        path: /src/ps-visio
+        state: directory
+
+    - name: Baixando e extraindo os arquivos do ps-visio
+      ansible.builtin.unarchive:
+        src: https://github.com/lsgonc/ps-visio/archive/refs/heads/main.zip
+        dest: /src/ps-visio/
+        remote_src: yes
+
+    - name: Rodando docker compose up
+      community.docker.docker_compose_v2:
+        project_src: /src/ps-visio/ps-visio-main
+
+    - name: Fazendo o restore dos dados do Grafana no volume  
+      community.docker.docker_container:
+        user: root
+        name: restauraGrafana
+        image: busybox
+        mounts:
+          - source: ps-visio-main_grafana_data
+            target: /var/lib/grafana/
+        volumes:
+          - /src/ps-visio/ps-visio-main:/backup
+        command: /bin/sh -c "chown 472:0 /var/lib/grafana && chmod 777 /backup/grafana.db && cp /backup/grafana.db /var/lib/grafana/grafana.db && chmod 777 /var/lib/grafana/grafana.db"
+    
+    - name: Fazendo o restore dos dados do Prometheus no volume  
+      community.docker.docker_container:
+        user: root
+        name: restauraGrafana
+        image: busybox
+        mounts:
+          - source: ps-visio-main_prometheus_data
+            target: /prometheus
+        volumes:
+          - /src/ps-visio/ps-visio-main:/backup
+        command: /bin/sh -c "mv /backup/prometheus-data /backup/prometheus && cp -rf /backup/prometheus /prometheus"
+
+    - name: Restartando o compose
+      community.docker.docker_compose_v2:
+        project_src: /src/ps-visio/ps-visio-main/
+        state: restarted
+
+
